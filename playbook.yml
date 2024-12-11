@@ -1,0 +1,35 @@
+---
+- name: setup MySQL
+  become: yes
+  hosts: all
+  tasks:
+    - name: Installing MySQL and dependencies
+      package:
+        name: "{{item}}"
+        state: present
+        update_cache: yes
+      loop:
+        - mysql-server
+        - mysql-client 
+        - python3-mysqldb
+        - libmysqlclient-dev
+      become: yes
+
+    - name: start and enable mysql service
+      service: 
+        name: mysql
+        state: started
+        enabled: yes
+
+    - name: creating mysql user
+      mysql_user:
+        name: vagrant
+        password: vagrant
+        priv: '*.*:ALL'
+        host: '%'
+        state: present
+
+    - name: creating vagrant db
+      mysql_db:
+        name: vagrant
+        state: present
